@@ -53,7 +53,12 @@ def before_request_handler(request):
 
 
 def after_request_handler(request, response, get_endpoint_fn):
-    lat = time.time() - request.ctx.__START_TIME__
+    try:
+        lat = time.time() - request.ctx.__START_TIME__
+    except AttributeError as exc:
+        # Seems to happen on 404 requests.
+        # https://github.com/dkruchinin/sanic-prometheus/issues/37
+        lat = 0
     endpoint = get_endpoint_fn(request)
 
     # Note, that some handlers can ignore response logic,
